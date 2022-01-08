@@ -9,3 +9,24 @@
     quantity
   }
 }
+
+***
+
+query($id: ID){
+  product(id: $id) {
+    name
+    price
+    quantity
+    category {
+      name
+    }
+  }
+}
+
+---
+
+{
+  "id": "3"
+}
+
+***
