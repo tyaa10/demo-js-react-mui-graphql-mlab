@@ -40,7 +40,7 @@ const ProductType = new GraphQLObjectType({
     category: {
       type: CategoryType,
       resolve(parent, args) {
-				return categories.find(c => c.id === parent.id);
+				return categories.find(c => c.id === parent.categoryId);
 			}
     }
   }),
