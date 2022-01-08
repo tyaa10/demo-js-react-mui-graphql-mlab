@@ -30,3 +30,33 @@ query($id: ID){
 }
 
 ***
+
+query($id: ID) {
+  category(id: $id) {
+    name
+    products {
+      name
+      price
+      quantity
+    }
+  }
+}
+
+---
+
+{
+  "id": "5"
+}
+
+***
+
+query {
+  categories {
+    name
+    products {
+      name
+    }
+  }
+}
+
+***
