@@ -1,11 +1,11 @@
 const graphql = require("graphql")
 
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLFloat, GraphQLList, GraphQLSchema } = graphql
+const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLFloat, GraphQLList, GraphQLSchema, GraphQLNonNull } = graphql
 
 const Products = require('./models/product');
 const Categories = require('./models/category')
 
-const products = [
+/* const products = [
 	{ id: "1", "name": "Milk", "description": "Milk (regular), (0.25 liter)", "price": 0.22, "quantity": 15, "categoryId": "61d9e9d533baf00baedf3640" },
 	{ id: "2", "name": "Loaf of Fresh White Bread (125.00 g)", "description": "White Bread", "price": 0.69, "quantity": 40, "categoryId": "61d9ead333baf00baedf3641" },
   { id: "3", "name": "Rice", "description": "Rice (white), (0.10 kg)", "price": 4.00, "quantity": 30, "categoryId": "61d9eaf933baf00baedf3642" },
@@ -30,16 +30,16 @@ const categories = [
   { id: "5", "name": "Meat" }, // 61d9eb5833baf00baedf3644
   { id: "6", "name": "Fruits" }, // 61d9eb7e33baf00baedf3645
   { id: "7", "name": "Vegetables" } // 61d9eb9d33baf00baedf3646
-]
+] */
 
 const ProductType = new GraphQLObjectType({
   "name": "Product",
   fields: () => ({
     id: { type: GraphQLID },
-    "name": { type: GraphQLString },
-    "description": { type: GraphQLString },
-    "price": { type: GraphQLFloat },
-    "quantity": { type: GraphQLInt },
+    "name": { type: new GraphQLNonNull(GraphQLString) },
+    "description": { type: new GraphQLNonNull(GraphQLString) },
+    "price": { type: new GraphQLNonNull(GraphQLFloat) },
+    "quantity": { type: new GraphQLNonNull(GraphQLInt) },
     category: {
       type: CategoryType,
       resolve(parent, args) {
@@ -53,7 +53,7 @@ const CategoryType = new GraphQLObjectType({
   "name": "Category",
   fields: () => ({
     id: { type: GraphQLID },
-    "name": { type: GraphQLString },
+    "name": { type: new GraphQLNonNull(GraphQLString) },
     products: {
 			type: new GraphQLList(ProductType),
 			resolve(parent, args) {
@@ -69,7 +69,7 @@ const Mutation = new GraphQLObjectType({
 		addCategory: {
 			type: CategoryType,
 			args: {
-				name: { type: GraphQLString }
+				name: { type: new GraphQLNonNull(GraphQLString) }
 			},
 			resolve(parent, args) {
 				const category = new Categories({
@@ -81,21 +81,67 @@ const Mutation = new GraphQLObjectType({
 		addProduct: {
 			type: ProductType,
 			args: {
-				name: { type: GraphQLString },
-        description: { type: GraphQLString },
-        price: { type: GraphQLFloat },
-        quantity: { type: GraphQLInt },
+				name: { type: new GraphQLNonNull(GraphQLString) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+        price: { type: new GraphQLNonNull(GraphQLFloat) },
+        quantity: { type: new GraphQLNonNull(GraphQLInt) },
 				categoryId: { type: GraphQLID },
 			},
 			resolve(parent, args) {
-				const movie = new Products({
+				const product = new Products({
 					name: args.name,
 					description: args.description,
           price: args.price,
 					quantity: args.quantity,
 					categoryId: args.categoryId,
 				})
-				return movie.save()
+				return product.save()
+			},
+		},
+		deleteCategory: {
+			type: CategoryType,
+			args: { id: { type: GraphQLID } },
+			resolve(parent, args) {
+				return Categories.findByIdAndRemove(args.id)
+			}
+		},
+		deleteProduct: {
+			type: ProductType,
+			args: { id: { type: GraphQLID } },
+			resolve(parent, args) {
+				return Products.findByIdAndRemove(args.id)
+			}
+		},
+		updateCategory: {
+			type: CategoryType,
+			args: {
+				id: { type: GraphQLID },
+				name: { type: new GraphQLNonNull(GraphQLString) }
+			},
+			resolve(parent, args) {
+				return Categories.findByIdAndUpdate(
+					args.id,
+					{ $set: { name: args.name } },
+					{ new: true },
+				)
+			},
+		},
+		updateProduct: {
+			type: ProductType,
+			args: {
+				id: { type: GraphQLID },
+				name: { type: new GraphQLNonNull(GraphQLString) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+        price: { type: new GraphQLNonNull(GraphQLFloat) },
+        quantity: { type: new GraphQLNonNull(GraphQLInt) },
+				categoryId: { type: GraphQLID },
+			},
+			resolve(parent, args) {
+				return Products.findByIdAndUpdate(
+					args.id,
+					{ $set: { name: args.name, description: args.description, price: args.price, quantity: args.quantity, categoryId: args.categoryId } },
+					{ new: true },
+				);
 			},
 		}
 	}
