@@ -63,6 +63,44 @@ const CategoryType = new GraphQLObjectType({
   }),
 })
 
+const Mutation = new GraphQLObjectType({
+	name: 'Mutation',
+	fields: {
+		addCategory: {
+			type: CategoryType,
+			args: {
+				name: { type: GraphQLString }
+			},
+			resolve(parent, args) {
+				const category = new Categories({
+					name: args.name
+				})
+				return category.save()
+			},
+		},
+		addProduct: {
+			type: ProductType,
+			args: {
+				name: { type: GraphQLString },
+        description: { type: GraphQLString },
+        price: { type: GraphQLFloat },
+        quantity: { type: GraphQLInt },
+				categoryId: { type: GraphQLID },
+			},
+			resolve(parent, args) {
+				const movie = new Products({
+					name: args.name,
+					description: args.description,
+          price: args.price,
+					quantity: args.quantity,
+					categoryId: args.categoryId,
+				})
+				return movie.save()
+			},
+		}
+	}
+})
+
 const Query = new GraphQLObjectType({
   "name": "Query",
   fields: {
@@ -97,4 +135,5 @@ const Query = new GraphQLObjectType({
 
 module.exports = new GraphQLSchema({
   query: Query,
+  mutation: Mutation,
 })

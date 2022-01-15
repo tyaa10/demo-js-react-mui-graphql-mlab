@@ -60,3 +60,38 @@ query {
 }
 
 ***
+
+mutation($name: String) {
+  addCategory(name: $name) {
+    name
+  }
+}
+
+---
+
+{
+  "name": "test-category"
+}
+
+***
+
+mutation($name: String, $description: String, $price: Float, $quantity: Int) {
+  addProduct(name: $name, description: $description, price: $price, quantity: $quantity) {
+    name
+    description
+    price
+    quantity
+  }
+}
+
+---
+
+{
+  "name": "Test Product",
+  "description": "Test Product Description",
+  "price": 7.5,
+  "quantity": 10
+}
+
+***
+
